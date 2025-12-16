@@ -27,7 +27,7 @@ public class Politician
     public string? City { get; set; }
     
     [MaxLength(20)]
-    public string? ExternalId { get; set; } // ID from government APIs
+    public string? ExternalId { get; set; } // ID from government APIs (CodigoParlamentar for Senate)
     
     [MaxLength(500)]
     public string? PhotoUrl { get; set; }
@@ -37,7 +37,38 @@ public class Politician
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
+    // Senate-specific fields
+    [MaxLength(20)]
+    public string? CurrentLegislaturePublicCode { get; set; } // CodigoPublicoNaLegAtual
+    
+    [MaxLength(100)]
+    public string? ParlamentaryName { get; set; } // NomeParlamentar
+    
+    [MaxLength(20)]
+    public string? Gender { get; set; } // Masculino/Feminino
+    
+    [MaxLength(50)]
+    public string? Treatment { get; set; } // Senador/Senadora
+    
+    [MaxLength(500)]
+    public string? ParlamentaryPageUrl { get; set; } // UrlPaginaParlamentar
+    
+    [MaxLength(500)]
+    public string? PersonalPageUrl { get; set; } // UrlPaginaParticular
+    
+    [MaxLength(100)]
+    public string? Email { get; set; } // EmailParlamentar
+    
+    public bool IsBoardMember { get; set; } = false; // MembroMesa
+    public bool IsLeadershipMember { get; set; } = false; // MembroLideranca
+    
+    // Foreign Keys
+    public int? PoliticalBlocId { get; set; }
+    
     // Navigation properties
+    public virtual PoliticalBloc? PoliticalBloc { get; set; }
+    public virtual ICollection<PoliticianPhone> Phones { get; set; } = new List<PoliticianPhone>();
+    public virtual ICollection<PoliticianMandate> Mandates { get; set; } = new List<PoliticianMandate>();
     public virtual ICollection<Vote> Votes { get; set; } = new List<Vote>();
     public virtual ICollection<PoliticianExpense> Expenses { get; set; } = new List<PoliticianExpense>();
 }

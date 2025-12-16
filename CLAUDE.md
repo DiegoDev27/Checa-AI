@@ -11,6 +11,7 @@ ChecaAI is a .NET 8 Web API platform for Brazilian political transparency. It tr
 - **ChecaAI.Application**: Business logic and services  
 - **ChecaAI.Domain**: Entity models and core domain logic
 - **ChecaAI.Infrastructure**: Data access, Entity Framework, external integrations
+- **ChecaAI.Worker**: Background service for data scraping and synchronization
 
 ## Database
 - **PostgreSQL** with Entity Framework Core 8.0.11
@@ -44,6 +45,9 @@ dotnet run --project ChecaAI.Api
 
 # Run specific project
 dotnet run --project <ProjectName>
+
+# Run Worker for data synchronization
+dotnet run --project ChecaAI.Worker
 ```
 
 ### Testing
@@ -77,6 +81,10 @@ dotnet test <TestProjectPath>
 │   └── Entities/              # Core entities (Politician, Vote, etc.)
 ├── ChecaAI.Infrastructure/    # Data access
 │   └── Data/                  # DbContext and configurations
+├── ChecaAI.Worker/            # Background services
+│   ├── Models/DTOs/           # XML deserialization models
+│   ├── Services/              # Data scraping services
+│   └── Configuration/         # Worker settings
 ├── docker-compose.yml         # PostgreSQL setup
 └── ChecaAI.sln               # Solution file
 ```
@@ -87,8 +95,45 @@ dotnet test <TestProjectPath>
 3. Follow Clean Architecture principles: Domain → Application → Infrastructure → API
 4. Test locally with Swagger UI at https://localhost:7001/swagger (when running)
 
+## Data Worker (ChecaAI.Worker)
+The Worker is a background service that automatically synchronizes data from government APIs.
+
+### Features
+- **Automatic Senate Data Sync**: Fetches senator data from https://legis.senado.leg.br/dadosabertos/senador/lista/atual
+- **Configurable Intervals**: Sync frequency configurable via appsettings.json
+- **Retry Logic**: Automatic retries with exponential backoff
+- **Comprehensive Logging**: Detailed logging for monitoring and troubleshooting
+
+### Configuration (appsettings.json)
+```json
+{
+  "DataSync": {
+    "SenateDataSyncInterval": "02:00:00",  // Every 2 hours
+    "EnableScheduledSync": true,
+    "SyncStartTime": "06:00:00",           // Start at 6 AM
+    "RetryAttempts": 3,
+    "RetryDelay": "00:01:00"
+  },
+  "SenateApi": {
+    "BaseUrl": "https://legis.senado.leg.br/dadosabertos",
+    "RequestTimeout": "00:05:00"
+  }
+}
+```
+
+### Usage
+```bash
+# Run worker once (one-time sync)
+dotnet run --project ChecaAI.Worker
+
+# Run worker as service (continuous monitoring)
+# Set EnableScheduledSync: true in appsettings.json
+dotnet run --project ChecaAI.Worker
+```
+
 ## External Dependencies
 - Microsoft.EntityFrameworkCore 8.0.11
 - Npgsql.EntityFrameworkCore.PostgreSQL 8.0.11
+- Microsoft.Extensions.Http 10.0.1
 - PostgreSQL 15 (via Docker)
 - PgAdmin 4 (via Docker)
