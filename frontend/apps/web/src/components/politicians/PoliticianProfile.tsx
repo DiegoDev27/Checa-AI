@@ -9,7 +9,7 @@ import { positionLabel, presenceBadgeColor, cn } from '@/lib/utils';
 import {
   User, ExternalLink, Mail, ChevronRight, Loader2,
   LayoutDashboard, Vote, Receipt, DollarSign, Gift,
-  Users, Briefcase, CalendarCheck, TrendingUp,
+  Users, Briefcase, CalendarCheck, TrendingUp, Building2,
 } from 'lucide-react';
 import { AiAnalysisButton } from './AiAnalysisButton';
 import { OverviewTab } from './tabs/OverviewTab';
@@ -19,6 +19,7 @@ import { SalariesTab } from './tabs/SalariesTab';
 import { AllowancesTab } from './tabs/AllowancesTab';
 import { StaffTab } from './tabs/StaffTab';
 import { AttendanceTab } from './tabs/AttendanceTab';
+import { CommitteesTab } from './tabs/CommitteesTab';
 import { CampaignTab } from './tabs/CampaignTab';
 
 interface Props { id: number }
@@ -31,6 +32,7 @@ type Tab =
   | 'allowances'
   | 'staff'
   | 'attendance'
+  | 'committees'
   | 'campaign';
 
 const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
@@ -41,6 +43,7 @@ const TABS: { key: Tab; label: string; icon: React.ReactNode }[] = [
   { key: 'allowances',  label: 'Auxílios',        icon: <Gift className="h-4 w-4" /> },
   { key: 'staff',       label: 'Assessores',      icon: <Users className="h-4 w-4" /> },
   { key: 'attendance',  label: 'Presença',        icon: <CalendarCheck className="h-4 w-4" /> },
+  { key: 'committees',  label: 'Comissões',       icon: <Building2 className="h-4 w-4" /> },
   { key: 'campaign',    label: 'Campanha',         icon: <TrendingUp className="h-4 w-4" /> },
 ];
 
@@ -126,7 +129,7 @@ export function PoliticianProfile({ id }: Props) {
                   'text-xs font-medium px-2.5 py-1 rounded-full',
                   presenceBadgeColor(p.voteStats.presenceRate),
                 )}>
-                  {p.voteStats.presenceRate.toFixed(1)}% de presença • {p.voteStats.total} votos
+                  {p.voteStats.presenceRate.toFixed(1)}% em votações nominais • {p.voteStats.total} votos
                 </span>
               </div>
             )}
@@ -173,13 +176,13 @@ export function PoliticianProfile({ id }: Props) {
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={cn(
-                  'flex items-center gap-1.5 px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors',
+                  'flex items-center gap-1 px-3 py-3 text-xs font-medium border-b-2 whitespace-nowrap transition-colors',
                   tab === t.key
                     ? 'border-brand-600 text-brand-700 bg-brand-50'
                     : 'border-transparent text-gray-500 hover:text-gray-800 hover:bg-gray-50',
                 )}
               >
-                {t.icon}
+                <span className="hidden sm:block">{t.icon}</span>
                 {t.label}
               </button>
             ))}
@@ -189,12 +192,13 @@ export function PoliticianProfile({ id }: Props) {
         {/* Tab content */}
         <div className="p-5">
           {tab === 'overview'   && <OverviewTab p={p} id={id} />}
-          {tab === 'votes'      && <VotesTab id={id} />}
-          {tab === 'expenses'   && <ExpensesTab id={id} />}
+          {tab === 'votes'      && <VotesTab id={id} voteStats={p.voteStats} />}
+          {tab === 'expenses'   && <ExpensesTab id={id} expenseSummary={p.expenseSummary} />}
           {tab === 'salaries'   && <SalariesTab id={id} />}
           {tab === 'allowances' && <AllowancesTab id={id} />}
           {tab === 'staff'      && <StaffTab id={id} />}
-          {tab === 'attendance' && <AttendanceTab id={id} />}
+          {tab === 'attendance'  && <AttendanceTab id={id} />}
+          {tab === 'committees' && <CommitteesTab committees={p.committees ?? []} />}
           {tab === 'campaign'   && <CampaignTab id={id} />}
         </div>
       </div>

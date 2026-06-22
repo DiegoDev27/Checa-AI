@@ -12,7 +12,7 @@ const navLinks = [
   { href: '/proposicoes',    label: 'Proposições' },
   { href: '/comparar',       label: 'Comparar' },
   { href: '/partidos',       label: 'Partidos' },
-  { href: '/alertas',        label: 'Alertas' },
+  { href: '/alertas',        label: 'Ao Vivo' },
 ];
 
 export function Navbar() {

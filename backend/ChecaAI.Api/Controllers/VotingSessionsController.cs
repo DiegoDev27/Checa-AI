@@ -144,13 +144,22 @@ public class VotingSessionsController : ControllerBase
                 session.Proposal.Status
             },
             Votes = votes,
-            VotesSummary = new
-            {
-                Yes = votes.Count(v => v.VoteValue == "Yes"),
-                No = votes.Count(v => v.VoteValue == "No"),
-                Abstention = votes.Count(v => v.VoteValue == "Abstention"),
-                Absent = votes.Count(v => v.VoteValue == "Absent")
-            }
+            // For symbolic sessions (no individual votes), fall back to aggregate fields stored by the Worker
+            VotesSummary = votes.Count > 0
+                ? new
+                {
+                    Yes = votes.Count(v => v.VoteValue == "Yes"),
+                    No = votes.Count(v => v.VoteValue == "No"),
+                    Abstention = votes.Count(v => v.VoteValue == "Abstention"),
+                    Absent = votes.Count(v => v.VoteValue == "Absent")
+                }
+                : new
+                {
+                    Yes = session.VotesYes,
+                    No = session.VotesNo,
+                    Abstention = session.VotesAbstention,
+                    Absent = session.VotesAbsent
+                }
         });
     }
 }

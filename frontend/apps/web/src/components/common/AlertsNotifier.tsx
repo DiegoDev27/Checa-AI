@@ -25,7 +25,11 @@ export function AlertsNotifier() {
 
   const handleAlert = useCallback(
     (alert: AlertPayload) => {
-      // Only show toasts for ATENÇÃO or CRÍTICO levels
+      // Always refresh the feed so NORMAL sessions appear too
+      queryClient.invalidateQueries({ queryKey: ['alerts'] });
+      queryClient.invalidateQueries({ queryKey: ['home-alerts'] });
+
+      // Show toasts only for ATENÇÃO or CRÍTICO
       const level = alert.alertLevel.toUpperCase();
       if (level === 'NORMAL') return;
 
@@ -33,10 +37,6 @@ export function AlertsNotifier() {
       const toast: ToastItem = { ...alert, toastId, createdAt: Date.now() };
 
       setToasts((prev) => [toast, ...prev].slice(0, 4)); // max 4 toasts
-
-      // Invalidate alerts query so the AlertsFeed refreshes
-      queryClient.invalidateQueries({ queryKey: ['alerts'] });
-      queryClient.invalidateQueries({ queryKey: ['home-alerts'] });
 
       // Auto-dismiss
       setTimeout(() => dismiss(toastId), TOAST_DURATION);

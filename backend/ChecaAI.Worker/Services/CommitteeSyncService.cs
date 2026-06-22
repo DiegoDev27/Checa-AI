@@ -189,8 +189,8 @@ public class CommitteeSyncService : BackgroundService
     private async Task<List<CamaraMemberDto>> FetchCamaraMembersAsync(
         HttpClient client, string orgaoId, CancellationToken ct)
     {
-        // idLegislatura=57 is required; without it the API returns empty dados for most committees
-        var url = $"{CamaraBaseUrl}/orgaos/{orgaoId}/membros?idLegislatura=57";
+        // idLegislatura=58 is the current legislature (started Feb 2023)
+        var url = $"{CamaraBaseUrl}/orgaos/{orgaoId}/membros?idLegislatura=58";
         try
         {
             var response = await client.GetAsync(url, ct);

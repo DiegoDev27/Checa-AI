@@ -2,8 +2,8 @@
 
 import type { PoliticianDetail } from '@checa-ai/types';
 import Link from 'next/link';
-import { formatBRL, formatDate, voteColor, voteLabel, cn } from '@/lib/utils';
-import { Vote, DollarSign, TrendingUp, Briefcase } from 'lucide-react';
+import { formatBRL, formatDate, voteColor, voteLabel, isApproved, resultLabel, cn } from '@/lib/utils';
+import { Vote, DollarSign, TrendingUp } from 'lucide-react';
 import { VoteStatsBar } from '../VoteStatsBar';
 
 interface Props {
@@ -16,7 +16,6 @@ export function OverviewTab({ p, id }: Props) {
     p.voteStats ||
     p.latestSalary ||
     p.expenseSummary ||
-    (p.committees && p.committees.length > 0) ||
     (p.recentVotes && p.recentVotes.length > 0);
 
   if (!hasAnyData) {
@@ -158,26 +157,6 @@ export function OverviewTab({ p, id }: Props) {
         </div>
       )}
 
-      {/* Committees */}
-      {p.committees && p.committees.length > 0 && (
-        <div className="bg-white rounded-xl border p-5">
-          <h2 className="font-semibold text-gray-800 flex items-center gap-2 mb-4">
-            <Briefcase className="h-4 w-4 text-brand-600" />
-            Comissões ({p.committees.length})
-          </h2>
-          <div className="grid sm:grid-cols-2 gap-2">
-            {p.committees.map((c) => (
-              <div key={c.committeeId} className="text-sm border rounded-lg p-3 bg-gray-50">
-                <div className="font-medium text-gray-800 leading-tight">{c.committeeName}</div>
-                <div className="text-xs text-gray-500 mt-1">
-                  {c.chamber} • <span className="text-brand-700">{c.role}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Recent votes */}
       {p.recentVotes && p.recentVotes.length > 0 && (
         <div className="bg-white rounded-xl border p-5">
@@ -210,11 +189,11 @@ export function OverviewTab({ p, id }: Props) {
                 </div>
                 <span className={cn(
                   'text-xs px-2 py-0.5 rounded flex-shrink-0',
-                  v.result.toLowerCase().includes('aprovad')
+                  isApproved(v.result)
                     ? 'text-green-700 bg-green-50'
                     : 'text-red-700 bg-red-50',
                 )}>
-                  {v.result}
+                  {resultLabel(v.result)}
                 </span>
               </Link>
             ))}

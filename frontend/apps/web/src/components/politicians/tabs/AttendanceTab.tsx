@@ -40,9 +40,10 @@ export function AttendanceTab({ id }: Props) {
     );
   }
 
-  const presentCount = data.data.filter((a) => a.isPresent).length;
-  const totalCount = data.data.length;
-  const presenceRate = totalCount > 0 ? ((presentCount / totalCount) * 100).toFixed(1) : '—';
+  const overallPresent = data.presentCount ?? 0;
+  const overallTotal = data.totalCount;
+  const presenceRate = overallTotal > 0 ? ((overallPresent / overallTotal) * 100).toFixed(1) : '—';
+  const rateNum = Number(presenceRate);
 
   return (
     <div className="bg-white rounded-xl border overflow-hidden">
@@ -57,15 +58,17 @@ export function AttendanceTab({ id }: Props) {
         <div className="ml-auto flex items-center gap-3">
           <span className={cn(
             'text-sm font-bold px-3 py-1 rounded-full',
-            Number(presenceRate) >= 80
+            rateNum >= 80
               ? 'bg-green-100 text-green-800'
-              : Number(presenceRate) >= 60
+              : rateNum >= 60
               ? 'bg-yellow-100 text-yellow-800'
               : 'bg-red-100 text-red-800',
           )}>
-            {presenceRate}% presença nesta página
+            {presenceRate}% de presença em {year}
           </span>
-          <span className="text-sm text-gray-500">{data.totalCount} registros</span>
+          <span className="text-sm text-gray-500">
+            {overallPresent} presente{overallPresent !== 1 ? 's' : ''} / {overallTotal} sessões
+          </span>
         </div>
       </div>
 

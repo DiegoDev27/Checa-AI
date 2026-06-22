@@ -1,7 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
-import { politiciansApi, alertsApi, sessionsApi } from '@checa-ai/api-client';
+import { politiciansApi, alertsApi, sessionsApi, proposalsApi } from '@checa-ai/api-client';
 import Link from 'next/link';
 import { alertLevelColor, formatDate, voteColor, voteLabel, cn } from '@/lib/utils';
 import {
@@ -23,6 +23,12 @@ function LiveStats() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: proposals } = useQuery({
+    queryKey: ['home-proposals-count'],
+    queryFn: () => proposalsApi.list({ pageSize: 1 }),
+    staleTime: 5 * 60 * 1000,
+  });
+
   const stats = [
     {
       label: 'Parlamentares rastreados',
@@ -30,9 +36,9 @@ function LiveStats() {
       loading: !politicians,
     },
     {
-      label: 'Municípios cobertos',
-      value: '5.570',
-      loading: false,
+      label: 'Proposições monitoradas',
+      value: proposals?.totalCount?.toLocaleString('pt-BR') ?? '—',
+      loading: !proposals,
     },
     {
       label: 'Votações indexadas',
@@ -149,7 +155,8 @@ function RecentSessions() {
   return (
     <div className="space-y-1.5">
       {data.data.map((s) => {
-        const approved = s.result?.toLowerCase().includes('aprovad');
+        const r = s.result?.toLowerCase() ?? '';
+        const approved = r.includes('aprovad') || r.includes('approved');
         return (
           <Link
             key={s.id}

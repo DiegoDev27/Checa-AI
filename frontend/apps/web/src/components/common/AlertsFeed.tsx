@@ -4,8 +4,15 @@ import { useQuery } from '@tanstack/react-query';
 import { alertsApi } from '@checa-ai/api-client';
 import Link from 'next/link';
 import { alertLevelColor, formatDate } from '@/lib/utils';
-import { AlertTriangle } from 'lucide-react';
+import { Radio, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+function LevelIcon({ level }: { level: string }) {
+  const l = level.toUpperCase();
+  if (l === 'CRÍTICO' || l === 'CRITICO') return <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5 text-red-500" />;
+  if (l === 'ATENÇÃO' || l === 'ATENCAO') return <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5 text-orange-500" />;
+  return <Radio className="h-5 w-5 flex-shrink-0 mt-0.5 text-green-500" />;
+}
 
 export function AlertsFeed() {
   const { data: alerts, isLoading, isError } = useQuery({
@@ -37,7 +44,7 @@ export function AlertsFeed() {
   if (isError) {
     return (
       <div className="text-center py-12 text-red-600">
-        Erro ao carregar alertas.
+        Erro ao carregar votações.
       </div>
     );
   }
@@ -45,9 +52,10 @@ export function AlertsFeed() {
   if (!alerts || alerts.length === 0) {
     return (
       <div className="text-center py-16 text-gray-500">
-        <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-        <p>Nenhum alerta no momento.</p>
-        <p className="text-sm mt-2">O sistema verifica votações suspeitas a cada 90 segundos.</p>
+        <Radio className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+        <p className="font-medium">Nenhuma votação em andamento.</p>
+        <p className="text-sm mt-2">O sistema verifica a Câmara e o Senado a cada 90 segundos.</p>
+        <p className="text-xs mt-1 text-gray-400">Fora do período de sessões não há votações ativas.</p>
       </div>
     );
   }
@@ -64,13 +72,15 @@ export function AlertsFeed() {
           )}
         >
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <LevelIcon level={alert.alertLevel} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-bold uppercase tracking-wide">
                   {alert.alertLevel}
                 </span>
-                <span className="text-xs opacity-70">Score: {alert.score}</span>
+                {alert.score > 0 && (
+                  <span className="text-xs opacity-70">Score: {alert.score}</span>
+                )}
                 <span className="text-xs opacity-70">•</span>
                 <span className="text-xs opacity-70">{alert.chamber}</span>
               </div>

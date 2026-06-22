@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { proposalsApi } from '@checa-ai/api-client';
 import Link from 'next/link';
-import { formatDate, cn } from '@/lib/utils';
+import { formatDate, isApproved, resultLabel, cn } from '@/lib/utils';
 import {
   ChevronRight, FileText, Calendar, User,
   Building2, CheckCircle2, XCircle, MinusCircle, Vote,
@@ -20,8 +20,8 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 function ResultBadge({ result }: { result: string }) {
-  const approved = result.toLowerCase().includes('aprovad');
-  const rejected = result.toLowerCase().includes('rejeitad');
+  const approved = isApproved(result);
+  const rejected = result.toLowerCase().includes('rejected') || result.toLowerCase().includes('rejeitad');
 
   return (
     <span className={cn(
@@ -29,7 +29,7 @@ function ResultBadge({ result }: { result: string }) {
       approved ? 'bg-green-100 text-green-800' : rejected ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-700',
     )}>
       {approved ? <CheckCircle2 className="h-3.5 w-3.5" /> : rejected ? <XCircle className="h-3.5 w-3.5" /> : <MinusCircle className="h-3.5 w-3.5" />}
-      {result}
+      {resultLabel(result)}
     </span>
   );
 }
@@ -124,7 +124,7 @@ export function ProposalDetail({ id }: Props) {
           </div>
           <div className="divide-y">
             {p.votingSessions.map((s) => {
-              const approved = s.result?.toLowerCase().includes('aprovad');
+              const approved = isApproved(s.result ?? '');
               return (
                 <Link
                   key={s.id}

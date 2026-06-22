@@ -93,12 +93,12 @@ public class PlenaryWatcherService : BackgroundService
         IPushNotificationService pushService,
         CancellationToken ct)
     {
-        // Skip already known sessions that already have an alert
-        var alreadyAlerted = await db.VotingAlerts
+        // Skip sessions already broadcast (check VotingSession existence — all sessions get an alert now)
+        var alreadyBroadcast = await db.VotingAlerts
             .Include(a => a.VotingSession)
             .AnyAsync(a => a.VotingSession.ExternalId == dto.ExternalId, ct);
 
-        if (alreadyAlerted) return;
+        if (alreadyBroadcast) return;
 
         // Find or create the VotingSession entity
         var session = await db.VotingSessions
@@ -144,12 +144,20 @@ public class PlenaryWatcherService : BackgroundService
             await db.SaveChangesAsync(ct);
         }
 
-        // Evaluate alert score
+        // Evaluate alert score — ALL sessions are broadcast; score is just metadata
         var alert = await alertEngine.EvaluateAsync(session);
         if (alert == null)
         {
-            _logger.LogDebug("[PlenaryWatcher] Session {Id} score too low, no alert", dto.ExternalId);
-            return;
+            // Engine returned null (score=0, no criteria matched) — create a NORMAL-level alert
+            alert = new VotingAlert
+            {
+                VotingSessionId = session.Id,
+                AlertLevel = "Normal",
+                Score = 0,
+                ScoreBreakdown = "{}",
+                DetectedAt = DateTime.UtcNow,
+                SummaryText = string.Empty,
+            };
         }
 
         // Persist alert
@@ -157,8 +165,8 @@ public class PlenaryWatcherService : BackgroundService
         await db.SaveChangesAsync(ct);
 
         _logger.LogInformation(
-            "[PlenaryWatcher] 🚨 Alert {Level} (score={Score}) for session {Id} in {Chamber}",
-            alert.AlertLevel, alert.Score, session.ExternalId, chamber);
+            "[PlenaryWatcher] Session {Id} in {Chamber} — level={Level} score={Score}",
+            session.ExternalId, chamber, alert.AlertLevel, alert.Score);
 
         // Send push notification
         var pushed = await pushService.SendAlertAsync(alert, session);

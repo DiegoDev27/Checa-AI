@@ -287,9 +287,7 @@ public class AttendanceSyncService : BackgroundService
                 SessionDate = sessionDate,
                 IsPresent = isPresent,
                 AbsenceReason = absenceReason,
-                AbsenceJustification = session.DescricaoTipo?.Length > 500
-                    ? session.DescricaoTipo[..500]
-                    : session.DescricaoTipo,
+                AbsenceJustification = null,
                 Chamber = "Câmara",
                 ExternalId = extKey,
                 CreatedAt = DateTime.UtcNow

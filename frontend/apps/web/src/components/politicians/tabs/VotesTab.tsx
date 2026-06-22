@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { politiciansApi } from '@checa-ai/api-client';
 import Link from 'next/link';
-import { formatDate, voteColor, voteLabel, cn } from '@/lib/utils';
+import { formatDate, voteColor, voteLabel, isApproved, resultLabel, cn } from '@/lib/utils';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { VoteStats } from '@checa-ai/types';
+import { VoteStatsBar } from '../VoteStatsBar';
 
-interface Props { id: number }
+interface Props { id: number; voteStats?: VoteStats | null }
 
 const VOTE_OPTIONS = [
   { value: '', label: 'Todos os votos' },
@@ -17,7 +19,7 @@ const VOTE_OPTIONS = [
   { value: 'Absent', label: 'Ausente' },
 ];
 
-export function VotesTab({ id }: Props) {
+export function VotesTab({ id, voteStats }: Props) {
   const [page, setPage] = useState(1);
   const [voteFilter, setVoteFilter] = useState('');
   const pageSize = 25;
@@ -34,8 +36,17 @@ export function VotesTab({ id }: Props) {
     : (data?.data ?? []);
 
   return (
-    <div className="bg-white rounded-xl border overflow-hidden">
-      {/* Filters */}
+    <div className="space-y-4">
+      {/* Distribution chart */}
+      {voteStats && voteStats.total > 0 && (
+        <div className="bg-white rounded-xl border p-5">
+          <h3 className="text-sm font-semibold text-gray-700 mb-4">Distribuição dos votos</h3>
+          <VoteStatsBar stats={voteStats} />
+        </div>
+      )}
+
+      <div className="bg-white rounded-xl border overflow-hidden">
+        {/* Filters */}
       <div className="p-4 border-b flex items-center gap-3 flex-wrap bg-gray-50">
         <select
           value={voteFilter}
@@ -86,11 +97,11 @@ export function VotesTab({ id }: Props) {
                 </div>
                 <span className={cn(
                   'text-xs px-2 py-0.5 rounded flex-shrink-0',
-                  v.result.toLowerCase().includes('aprovad')
+                  isApproved(v.result)
                     ? 'text-green-700 bg-green-50'
                     : 'text-red-700 bg-red-50',
                 )}>
-                  {v.result}
+                  {resultLabel(v.result)}
                 </span>
               </Link>
             ))}
@@ -142,6 +153,7 @@ export function VotesTab({ id }: Props) {
           )}
         </>
       )}
+    </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { sessionsApi } from '@checa-ai/api-client';
 import Link from 'next/link';
-import { formatDate, formatBRL, voteColor, voteLabel, alertLevelColor, cn } from '@/lib/utils';
+import { formatDate, formatBRL, voteColor, voteLabel, alertLevelColor, isApproved, resultLabel, cn } from '@/lib/utils';
 import {
   ChevronRight, Loader2, AlertTriangle, Users, BarChart3, Bot, X,
 } from 'lucide-react';
@@ -77,7 +77,7 @@ export function SessionDetail({ id }: Props) {
   }
 
   const s = data;
-  const approved = s.result.toLowerCase().includes('aprovad');
+  const approved = isApproved(s.result);
 
   // Build party breakdown
   const partyMap: Record<string, Record<string, number>> = {};
@@ -138,7 +138,7 @@ export function SessionDetail({ id }: Props) {
                 'text-sm font-bold px-3 py-1 rounded-full',
                 approved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800',
               )}>
-                {approved ? '✓' : '✗'} {s.result}
+                {approved ? '✓' : '✗'} {resultLabel(s.result)}
               </span>
             </div>
           </div>

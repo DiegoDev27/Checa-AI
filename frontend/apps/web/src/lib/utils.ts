@@ -50,12 +50,29 @@ export function alertLevelColor(level: string): string {
   }
 }
 
-/** Session result → color class (more nuanced than just approved/rejected) */
+/** Session result → Portuguese label */
+export function resultLabel(result: string): string {
+  const r = result.toLowerCase();
+  if (r.includes('approved') || r.includes('aprovad')) return 'Aprovada';
+  if (r.includes('rejected') || r.includes('rejeitad')) return 'Rejeitada';
+  if (r.includes('prejudicad')) return 'Prejudicada';
+  if (r.includes('withdrawn') || r.includes('retirad')) return 'Retirada';
+  if (r.includes('archived') || r.includes('arquivad')) return 'Arquivada';
+  return result;
+}
+
+/** Whether a result string means the proposal was approved */
+export function isApproved(result: string): boolean {
+  const r = result.toLowerCase();
+  return r.includes('approved') || r.includes('aprovad');
+}
+
+/** Session result → color class */
 export function resultColor(result: string): string {
   const r = result.toLowerCase();
-  if (r.includes('aprovad')) return 'bg-green-100 text-green-800';
-  if (r.includes('rejeitad')) return 'bg-red-100 text-red-800';
-  if (r.includes('prejudicad') || r.includes('retirad') || r.includes('arquivad')) return 'bg-gray-100 text-gray-700';
+  if (r.includes('approved') || r.includes('aprovad')) return 'bg-green-100 text-green-800';
+  if (r.includes('rejected') || r.includes('rejeitad')) return 'bg-red-100 text-red-800';
+  if (r.includes('prejudicad') || r.includes('withdrawn') || r.includes('retirad') || r.includes('arquivad')) return 'bg-gray-100 text-gray-700';
   return 'bg-blue-100 text-blue-800';
 }
 

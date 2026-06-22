@@ -230,6 +230,7 @@ public class TransparencyController : ControllerBase
             query = query.Where(a => a.SessionDate.Year == year.Value);
 
         var totalCount = await query.CountAsync(ct);
+        var presentCount = await query.CountAsync(a => a.IsPresent, ct);
 
         var items = await query
             .OrderByDescending(a => a.SessionDate)
@@ -246,9 +247,17 @@ public class TransparencyController : ControllerBase
             })
             .ToListAsync(ct);
 
-        return Ok(new PagedResponse<AttendanceDto>
+        return Ok(new
         {
-            Data = items, Page = page, PageSize = pageSize, TotalCount = totalCount
+            Data = items,
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            PresentCount = presentCount,
+            AbsentCount = totalCount - presentCount,
+            TotalPages = (int)Math.Ceiling(totalCount / (double)pageSize),
+            HasNextPage = page * pageSize < totalCount,
+            HasPrevPage = page > 1,
         });
     }
 

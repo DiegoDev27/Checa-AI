@@ -8,6 +8,8 @@ export interface PagedResponse<T> {
   totalPages: number;
   hasNextPage: boolean;
   hasPrevPage: boolean;
+  presentCount?: number;
+  absentCount?: number;
 }
 
 // ── Politician ─────────────────────────────────────────────────────────────────
