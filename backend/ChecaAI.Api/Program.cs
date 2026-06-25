@@ -10,16 +10,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // CORS — allow frontend (Next.js dev + Expo) and SignalR WebSocket
+var allowedOrigins = builder.Environment.IsProduction()
+    ? new[] { "https://checa.ai", "https://www.checa.ai" }
+    : new[] { "http://localhost:3000", "http://localhost:3001", "http://localhost:19006", "https://checa-ai.vercel.app" };
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:3000",   // Next.js dev
-                "http://localhost:3001",
-                "http://localhost:19006",  // Expo web
-                "https://checa-ai.vercel.app")
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); // required for SignalR
